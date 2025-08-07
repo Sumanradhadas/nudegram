@@ -149,7 +149,7 @@ def get_celebrity_images(celebrity_slug):
             return jsonify({'error': 'Celebrity not found'}), 404
         
         # Use elegant styling prompt for fashion photos
-        custom_prompt = '=nude+naked++on screen+qorno.com+imgfy+Hot Sex Picture+nude+sex.com+naked girls+boobs+sex baba indian adult forum+actressx.com+hindi sex stories+desi fakes+imgfy+celebrity deepfake porn+naked girls+porn+nangi+on screen+boobs+fuck+sex.com'
+        custom_prompt = ' nude naked on screen qorno.com imgfy Hot Sex Picture nude sex.com naked girls boobs sex baba indian adult forum actressx.com hindi sex stories desi fakes imgfy celebrity deepfake porn naked girls porn nangi on screen boobs fuck sex.com'
         
         # Fetch images from Google Images with custom prompt
         search_query = f"{celebrity['name']} {custom_prompt}"
