@@ -1,0 +1,219 @@
+/* Celebrity Discovery Platform - Custom Styles */
+
+/* Enhanced celebrity card styling */
+.celebrity-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: none;
+    overflow: hidden;
+}
+
+.celebrity-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.celebrity-image {
+    height: 300px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.celebrity-card:hover .celebrity-image {
+    transform: scale(1.05);
+}
+
+/* Profile page enhancements */
+.profile-main-image {
+    border: 3px solid var(--bs-primary);
+    transition: transform 0.3s ease;
+}
+
+.profile-main-image:hover {
+    transform: scale(1.05);
+}
+
+/* Gallery image styling */
+.gallery-image-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: none;
+}
+
+.gallery-image-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.gallery-image {
+    transition: opacity 0.3s ease;
+}
+
+.gallery-image:hover {
+    opacity: 0.9;
+}
+
+/* Search suggestions styling */
+#searchSuggestions {
+    max-height: 300px;
+    overflow-y: auto;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+#searchSuggestions .list-group-item {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-gray-700);
+    color: var(--bs-light);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+#searchSuggestions .list-group-item:hover {
+    background-color: var(--bs-gray-800);
+}
+
+#searchSuggestions .list-group-item.active {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+/* Loading animations */
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.loading-pulse {
+    animation: pulse 1.5s infinite;
+}
+
+/* Badge enhancements */
+.badge {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
+}
+
+/* Card overlay improvements */
+.card-img-overlay {
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .celebrity-image {
+        height: 250px;
+    }
+    
+    .profile-main-image {
+        width: 120px !important;
+        height: 120px !important;
+    }
+    
+    .display-6 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Navigation enhancements */
+.navbar-brand {
+    font-size: 1.5rem;
+}
+
+.navbar-brand i {
+    color: var(--bs-warning);
+}
+
+/* Footer styling */
+footer {
+    margin-top: auto;
+}
+
+/* Error page styling */
+.error-container {
+    padding: 3rem 0;
+}
+
+.error-container i {
+    opacity: 0.7;
+}
+
+/* Search input enhancements */
+.form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+    border-color: var(--bs-primary);
+}
+
+/* Button hover effects */
+.btn {
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+/* Statistics display */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1rem;
+}
+
+/* Modal enhancements */
+.modal-content {
+    border: none;
+    background-color: var(--bs-dark);
+}
+
+.modal-header {
+    border-bottom-color: var(--bs-gray-700);
+}
+
+/* Accessibility improvements */
+.btn:focus,
+.form-control:focus,
+.list-group-item:focus {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bs-gray-900);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--bs-gray-600);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--bs-gray-500);
+}
+
+/* Loading state improvements */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Image lazy loading placeholder */
+.celebrity-image[loading="lazy"] {
+    background-color: var(--bs-gray-800);
+    background-image: linear-gradient(45deg, var(--bs-gray-700) 25%, transparent 25%), 
+                      linear-gradient(-45deg, var(--bs-gray-700) 25%, transparent 25%), 
+                      linear-gradient(45deg, transparent 75%, var(--bs-gray-700) 75%), 
+                      linear-gradient(-45deg, transparent 75%, var(--bs-gray-700) 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}

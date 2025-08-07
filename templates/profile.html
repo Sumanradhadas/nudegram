@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}{{ celebrity.name }} - Celebrity Discovery Platform{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Celebrity Info Section -->
+    <div class="col-lg-4">
+        <div class="card sticky-top" style="top: 100px;">
+            <div class="card-body text-center">
+                <img src="{{ celebrity.profile_image_url }}" 
+                     class="rounded-circle mb-3 profile-main-image" 
+                     alt="{{ celebrity.name }}"
+                     width="150" height="150"
+                     style="object-fit: cover;">
+                
+                <h2 class="fw-bold mb-1">{{ celebrity.name }}</h2>
+                <p class="text-muted mb-3">
+                    <span class="badge bg-info fs-6">{{ celebrity.profession }}</span>
+                </p>
+                
+                <p class="text-muted mb-4">{{ celebrity.bio }}</p>
+                
+                <div class="row text-center mb-4">
+                    <div class="col">
+                        <div class="fw-bold text-primary fs-4">{{ "{:,}".format(celebrity.followers_count) }}</div>
+                        <small class="text-muted">Followers</small>
+                    </div>
+                    <div class="col">
+                        <div class="fw-bold text-success fs-4">{{ celebrity.posts_count }}</div>
+                        <small class="text-muted">Posts</small>
+                    </div>
+                    <div class="col">
+                        <div class="fw-bold text-info fs-4">{{ celebrity.following_count }}</div>
+                        <small class="text-muted">Following</small>
+                    </div>
+                </div>
+                
+                <button id="loadImagesBtn" class="btn btn-primary w-100 mb-2">
+                    <i class="fas fa-images me-2"></i>Load Black Dress Gallery
+                </button>
+                
+                <div id="loadingStatus" class="small text-muted" style="display: none;">
+                    <div class="spinner-border spinner-border-sm me-2" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span id="loadingText">Searching for images...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Images Gallery Section -->
+    <div class="col-lg-8">
+        <div id="imageGalleryContainer">
+            <div class="text-center py-5">
+                <i class="fas fa-camera fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">Fashion Gallery</h4>
+                <p class="text-muted">Click "Load Black Dress Gallery" to discover elegant fashion photos</p>
+            </div>
+        </div>
+        
+        <!-- Instagram-style Images Feed -->
+        <div id="imagesGrid" style="display: none;">
+            <!-- Images will be loaded here in Instagram-style vertical feed -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const loadImagesBtn = document.getElementById('loadImagesBtn');
+    const loadingStatus = document.getElementById('loadingStatus');
+    const loadingText = document.getElementById('loadingText');
+    const imageGalleryContainer = document.getElementById('imageGalleryContainer');
+    const imagesGrid = document.getElementById('imagesGrid');
+    const detectionStats = document.getElementById('detectionStats');
+    const statsContent = document.getElementById('statsContent');
+    
+    let imagesLoaded = false;
+    
+    loadImagesBtn.addEventListener('click', function() {
+        if (imagesLoaded) return;
+        
+        // Show loading state
+        loadImagesBtn.disabled = true;
+        loadingStatus.style.display = 'block';
+        loadingText.textContent = 'Searching for images...';
+        
+        // Fetch images from API
+        fetch(`/api/celebrity/{{ celebrity.slug }}/images`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                loadingText.textContent = 'Processing images with AI detection...';
+                
+                // Hide placeholder and show images
+                imageGalleryContainer.style.display = 'none';
+                imagesGrid.style.display = 'block';
+                
+                // Create Instagram-style vertical feed
+                if (data.images && data.images.length > 0) {
+                    imagesGrid.innerHTML = '';
+                    
+                    data.images.forEach((image, index) => {
+                        const feedItem = document.createElement('div');
+                        feedItem.className = 'instagram-feed-item mb-4';
+                        feedItem.style.cssText = `
+                            background: var(--bs-card-bg);
+                            border: 1px solid var(--bs-border-color);
+                            border-radius: 12px;
+                            overflow: hidden;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                        `;
+                        
+                        feedItem.innerHTML = `
+                            <div class="feed-header p-3 d-flex align-items-center border-bottom">
+                                <img src="{{ celebrity.profile_image_url }}" 
+                                     class="rounded-circle me-3" 
+                                     width="32" height="32" 
+                                     style="object-fit: cover;">
+                                <div>
+                                    <h6 class="mb-0">{{ celebrity.name }}</h6>
+                                    <small class="text-muted">Fashion Gallery</small>
+                                </div>
+                            </div>
+                            <div class="feed-image">
+                                <img src="${image.url}" 
+                                     class="gallery-image w-100" 
+                                     alt="${image.title || 'Fashion photo'}"
+                                     loading="lazy"
+                                     style="max-height: 600px; object-fit: cover; cursor: pointer;">
+                            </div>
+                            <div class="feed-footer p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <i class="far fa-heart me-2 text-muted" style="cursor: pointer;"></i>
+                                        <i class="far fa-comment me-2 text-muted" style="cursor: pointer;"></i>
+                                        <i class="far fa-share me-2 text-muted" style="cursor: pointer;"></i>
+                                    </div>
+                                    <small class="text-muted">Photo ${index + 1} of ${data.images.length}</small>
+                                </div>
+                                ${image.title ? `<p class="mb-1 small">${image.title}</p>` : ''}
+                                <small class="text-muted">From: ${image.source_domain || 'Unknown source'}</small>
+                            </div>
+                        `;
+                        
+                        imagesGrid.appendChild(feedItem);
+                    });
+                    
+                    // Show simple gallery info
+                    const galleryInfo = document.createElement('div');
+                    galleryInfo.className = 'alert alert-info mt-3';
+                    galleryInfo.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-images me-2"></i>Found ${data.images.length} fashion photos</span>
+                            <small class="text-muted">Total discovered: ${data.total_found}</small>
+                        </div>
+                    `;
+                    imagesGrid.appendChild(galleryInfo);
+                    
+                    // Add image modal functionality
+                    addImageModalHandlers();
+                    
+                } else {
+                    imagesGrid.innerHTML = `
+                        <div class="text-center py-5">
+                            <i class="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
+                            <h5>No images found</h5>
+                            <p class="text-muted">Unable to find fashion photos for this celebrity.</p>
+                        </div>
+                    `;
+                }
+                
+                imagesLoaded = true;
+                loadImagesBtn.textContent = 'Images Loaded';
+                loadImagesBtn.innerHTML = '<i class="fas fa-check me-2"></i>Images Loaded';
+                
+            })
+            .catch(error => {
+                console.error('Error loading images:', error);
+                imagesGrid.innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Error loading images:</strong> ${error.message}
+                        </div>
+                    </div>
+                `;
+                imagesGrid.style.display = 'block';
+                imageGalleryContainer.style.display = 'none';
+                
+                loadImagesBtn.disabled = false;
+                loadImagesBtn.innerHTML = '<i class="fas fa-redo me-2"></i>Retry Loading';
+            })
+            .finally(() => {
+                loadingStatus.style.display = 'none';
+            });
+    });
+    
+    function addImageModalHandlers() {
+        // Add click handlers for image modal viewing
+        const galleryImages = document.querySelectorAll('.gallery-image');
+        galleryImages.forEach(img => {
+            img.style.cursor = 'pointer';
+            img.addEventListener('click', function() {
+                // Create and show modal with larger image
+                const modal = document.createElement('div');
+                modal.className = 'modal fade';
+                modal.innerHTML = `
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">{{ celebrity.name }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body text-center">
+                                <img src="${this.src}" class="img-fluid" alt="Celebrity photo">
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                const modalInstance = new bootstrap.Modal(modal);
+                modalInstance.show();
+                
+                // Remove modal from DOM when hidden
+                modal.addEventListener('hidden.bs.modal', () => {
+                    modal.remove();
+                });
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

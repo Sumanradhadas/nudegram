@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results for "{{ search_query }}" - Celebrity Discovery Platform{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="display-6 mb-0">
+                    <i class="fas fa-search me-2"></i>
+                    Search Results
+                </h1>
+                <p class="text-muted mb-0">Showing results for: "<strong>{{ search_query }}</strong>"</p>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-primary fs-6">{{ celebrities|length }} Results</span>
+                <div class="mt-2">
+                    <a href="{{ url_for('home') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i>Back to All
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        {% if celebrities %}
+        <div class="row g-4">
+            {% for celebrity in celebrities %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 celebrity-card">
+                    <div class="position-relative">
+                        <img src="{{ celebrity.profile_image_url }}" 
+                             class="card-img-top celebrity-image" 
+                             alt="{{ celebrity.name }}"
+                             loading="lazy">
+                        <div class="card-img-overlay d-flex align-items-end p-0">
+                            <div class="bg-dark bg-opacity-75 text-white p-3 w-100">
+                                <h5 class="card-title mb-1 fw-bold">
+                                    {{ celebrity.name | highlight_search(search_query) | safe }}
+                                </h5>
+                                <p class="card-text mb-0">
+                                    <span class="badge bg-info">
+                                        {{ celebrity.profession | highlight_search(search_query) | safe }}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <p class="card-text text-muted small">
+                            {{ celebrity.bio[:120] }}...
+                        </p>
+                        
+                        <div class="row text-center mb-3">
+                            <div class="col">
+                                <div class="fw-bold text-primary">{{ "{:,}".format(celebrity.followers_count) }}</div>
+                                <small class="text-muted">Followers</small>
+                            </div>
+                            <div class="col">
+                                <div class="fw-bold text-success">{{ celebrity.posts_count }}</div>
+                                <small class="text-muted">Posts</small>
+                            </div>
+                            <div class="col">
+                                <div class="fw-bold text-info">{{ celebrity.following_count }}</div>
+                                <small class="text-muted">Following</small>
+                            </div>
+                        </div>
+                        
+                        <a href="{{ url_for('profile', celebrity_slug=celebrity.slug) }}" 
+                           class="btn btn-outline-primary w-100">
+                            <i class="fas fa-eye me-2"></i>View Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+            <h3 class="text-muted">No celebrities found</h3>
+            <p class="text-muted">No celebrities match your search for "<strong>{{ search_query }}</strong>"</p>
+            <p class="text-muted">Try searching with different keywords or browse all celebrities.</p>
+            <a href="{{ url_for('home') }}" class="btn btn-primary">
+                <i class="fas fa-arrow-left me-2"></i>Back to All Celebrities
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Add search term highlighting functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Add hover effects for search result cards
+    const cards = document.querySelectorAll('.celebrity-card');
+    
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+            this.style.transition = 'transform 0.3s ease';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+});
+</script>
+{% endblock %}
