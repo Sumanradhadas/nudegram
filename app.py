@@ -58,14 +58,15 @@ def create_dynamic_celebrity(name):
 
 def fetch_profile_picture(celebrity_name):
     try:
-        profile_query = f"{celebrity_name} portrait headshot professional photo"
+        profile_query = f"{celebrity_name} site:imdb.com"
         profile_images = google_images_service.search_images(profile_query, num_results=10)
         if profile_images:
             for image in profile_images:
-                if image_validator._is_valid_image(image):
-                    return f"/proxy?url={image.get('url', '')}"
+                url = image.get('url', '')
+                if 'imdb.com' in url and image_validator._is_valid_image(image):
+                    return f"/proxy?url={url}"
     except Exception as e:
-        logging.error(f"Error fetching profile picture for {celebrity_name}: {str(e)}")
+        logging.error(f"Error fetching IMDb profile picture for {celebrity_name}: {str(e)}")
     initials = ''.join([word[0] for word in celebrity_name.split()[:2]]).upper()
     return f'https://via.placeholder.com/400x400/4a5568/ffffff?text={initials}'
 
@@ -114,13 +115,20 @@ def get_celebrity_images(celebrity_slug):
         validated_images = []
         for image in raw_images:
             if image_validator._is_valid_image(image):
+                url = image.get('url', '')
+                domain = image.get('source_domain', '').lower()
+                if any(social in domain for social in [
+                    'instagram.com', 'facebook.com', 'youtube.com', 
+                    'ytimg.com', 'fbcdn.net', 'tiktok.com', 'pinterest.com'
+                ]):
+                    continue
                 validated_images.append({
-                    'url': f"/proxy?url={image.get('url', '')}",
+                    'url': f"/proxy?url={url}",
                     'title': image.get('title', ''),
                     'thumbnail': image.get('thumbnail', ''),
                     'width': image.get('width', 0),
                     'height': image.get('height', 0),
-                    'source_domain': image.get('source_domain', '')
+                    'source_domain': domain
                 })
         return jsonify({
             'images': validated_images,
